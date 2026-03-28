@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Add Task</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="form-container">
+
+<form id="form" class="card">
+  <h2>➕ Add New Task</h2>
+
+  <input id="title" placeholder="Task Title" required>
+  <input id="desc" placeholder="Description">
+
+  <button class="btn login-btn">Add Task</button>
+</form>
+
+</div>
+
+<script>
+const token = localStorage.getItem("token");
+
+if(!token){
+  alert("Login first");
+  window.location.href = "login.html";
+}
+
+form.onsubmit = async (e) => {
+  e.preventDefault();
+
+  await fetch("http://localhost:5000/api/tasks", {
+    method: "POST",
+    headers: {
+      "Content-Type":"application/json",
+      Authorization: token
+    },
+    body: JSON.stringify({
+      title: title.value,
+      description: desc.value
+    })
+  });
+
+  alert("Task Added ✅");
+  window.location.href = "dashboard.html";
+};
+</script>
+
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Student Profile</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="dashboard">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>🎓 Student Task Manager</h2>
+    <button onclick="goDashboard()">🏠 Dashboard</button>
+    <button onclick="logout()">🚪 Logout</button>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+
+    <h2>👤 My Profile</h2>
+
+    <div class="card profile-card">
+
+      <div class="profile-info">
+        <p><strong>Username:</strong><br> <span id="username"></span></p>
+        <p><strong>Email:</strong><br> <span id="email"></span></p>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+const token = localStorage.getItem("token");
+
+if(!token){
+  alert("Login first");
+  window.location.href = "login.html";
+}
+
+/* ===== LOAD PROFILE ===== */
+async function loadProfile(){
+  try {
+    const res = await fetch("http://localhost:5000/api/auth/profile", {
+      headers: { Authorization: token }
+    });
+
+    const data = await res.json();
+
+    document.getElementById("username").innerText = data.username || "N/A";
+    document.getElementById("email").innerText = data.email || "N/A";
+
+  } catch(err){
+    alert("Error loading profile");
+    console.log(err);
+  }
+}
+
+/* ===== NAVIGATION ===== */
+function goDashboard(){
+  window.location.href = "dashboard.html";
+}
+
+function logout(){
+  localStorage.removeItem("token");
+  window.location.href = "login.html";
+}
+
+loadProfile();
+</script>
+
+</body>
+</html>

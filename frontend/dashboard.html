@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="dashboard">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>🎓 Student Task Manager</h2>
+
+    <p id="welcomeUser" class="welcome-text"></p>
+
+    <button onclick="goAdd()">➕ Add Task</button>
+    <button onclick="logout()">🚪 Logout</button>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <h2>📅 Today Tasks</h2>
+
+      <!-- Replace profile icon with Hello + username -->
+      <div id="helloUser" class="hello-user">
+        <!-- Content added by JS -->
+      </div>
+    </div>
+
+    <!-- Tasks -->
+    <div id="list" class="task-list"></div>
+
+  </div>
+
+</div>
+
+<script>
+const token = localStorage.getItem("token");
+
+if(!token){
+  alert("Please login first");
+  window.location.href = "login.html";
+}
+
+/* ===== LOAD USER ===== */
+async function loadUser(){
+  const res = await fetch("http://localhost:5000/api/auth/profile", {
+    headers: { Authorization: token }
+  });
+
+  const data = await res.json();
+  // Display username with Hello emoji in top bar
+  document.getElementById("helloUser").innerText = "👋 Hello, " + data.username;
+  document.getElementById("welcomeUser").innerText = "👋 " + data.username; // still keep if needed
+}
+
+/* ===== LOAD TASKS ===== */
+async function loadTasks(){
+  const res = await fetch("http://localhost:5000/api/tasks", {
+    headers: { Authorization: token }
+  });
+
+  const data = await res.json();
+
+  list.innerHTML = data.map(t => `
+    <div class="task-card">
+      
+      <h3>${t.title}</h3>
+      <p>${t.description || ""}</p>
+
+      <div class="task-actions">
+        
+        <!-- COMPLETE BUTTON -->
+        <button onclick="toggleComplete('${t._id}', ${t.completed})">
+          ${t.completed ? "✅ Completed" : "✔ Mark Done"}
+        </button>
+
+        <button onclick="editTask('${t._id}', \`${t.title}\`, \`${t.description || ""}\`)">
+          ✏️ Edit
+        </button>
+
+        <button onclick="deleteTask('${t._id}')">
+          🗑 Delete
+        </button>
+
+      </div>
+    </div>
+  `).join("");
+}
+
+/* ===== TOGGLE COMPLETE ===== */
+async function toggleComplete(id, currentStatus){
+  await fetch("http://localhost:5000/api/tasks/" + id, {
+    method: "PUT",
+    headers: {
+      "Content-Type":"application/json",
+      Authorization: token
+    },
+    body: JSON.stringify({
+      completed: !currentStatus
+    })
+  });
+
+  loadTasks();
+}
+
+/* ===== DELETE ===== */
+async function deleteTask(id){
+  await fetch("http://localhost:5000/api/tasks/" + id, {
+    method: "DELETE",
+    headers: { Authorization: token }
+  });
+  loadTasks();
+}
+
+/* ===== EDIT ===== */
+async function editTask(id, oldTitle, oldDesc){
+  const newTitle = prompt("Edit Title:", oldTitle);
+  if(newTitle === null) return;
+
+  const newDesc = prompt("Edit Description:", oldDesc);
+  if(newDesc === null) return;
+
+  await fetch("http://localhost:5000/api/tasks/" + id, {
+    method: "PUT",
+    headers: {
+      "Content-Type":"application/json",
+      Authorization: token
+    },
+    body: JSON.stringify({
+      title: newTitle,
+      description: newDesc
+    })
+  });
+
+  loadTasks();
+}
+
+/* ===== NAVIGATION ===== */
+function goAdd(){
+  window.location.href = "addTask.html";
+}
+
+function logout(){
+  localStorage.removeItem("token");
+  window.location.href = "login.html";
+}
+
+/* ===== INIT ===== */
+loadUser();
+loadTasks();
+
+</script>
+
+</body>
+</html>

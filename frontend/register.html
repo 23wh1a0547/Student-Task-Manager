@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Register</title>
+<link rel="stylesheet" href="style.css">
+
+<!-- Google Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="form-container">
+
+  <form id="form" class="card login-card">
+    <h2>📝 Create Account</h2>
+    <p class="subtitle">Join and manage your tasks easily</p>
+
+    <div class="input-group">
+      <span class="material-symbols-outlined">person</span>
+      <input id="username" placeholder="Username" required>
+    </div>
+
+    <div class="input-group">
+      <span class="material-symbols-outlined">mail</span>
+      <input id="email" type="email" placeholder="Email" required>
+    </div>
+
+    <div class="input-group">
+      <span class="material-symbols-outlined">lock</span>
+      <input id="password" type="password" placeholder="Password" required>
+    </div>
+
+    <button class="btn login-btn">Register</button>
+
+    <p class="link-text">
+      Already have an account? <a href="login.html">Login</a>
+    </p>
+  </form>
+
+</div>
+
+<script>
+form.onsubmit = async (e) => {
+  e.preventDefault();
+
+  await fetch("http://localhost:5000/api/auth/register", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({
+      username: username.value,
+      email: email.value,
+      password: password.value
+    })
+  });
+
+  alert("Registered Successfully 🎉");
+  window.location.href = "login.html";
+};
+</script>
+
+</body>
+</html>
